@@ -75,8 +75,14 @@ object ConnectionParams {
     val hosts = readHosts(config)
     val port = config.getInt("port")
 
+    def calcAddress ( hostDef: String) =
+      if(hostDef.contains(':')) {
+        val hp = hostDef.split(":").take(2)
+        new Address(hp(1),hp(2).toInt)
+      } else { new Address(hostDef, port) }
+
     ConnectionParams(
-      hosts = hosts.map { h => new Address(h, port) },
+      hosts = hosts.map { h => calcAddress(h) },
       connectionTimeout = config.getDuration("connection-timeout", java.util.concurrent.TimeUnit.MILLISECONDS).toInt,
       username = config.getString("username"),
       password = config.getString("password"),
